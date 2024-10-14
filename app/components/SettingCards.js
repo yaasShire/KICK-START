@@ -1,6 +1,6 @@
 //
 import React from 'react';
-import { COLORS } from '../../../../theme/globalStyle';
+import { COLORS, SIZES2 } from '../theme/globalStyle';
 import Feather from 'react-native-vector-icons/Feather';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 //
@@ -11,7 +11,7 @@ const SettingCards = ({ title = "title", iconName = "heart", iconBg = "blue", on
                 <View style={[styles.iconCon, { backgroundColor: iconBg }]}>
                     <Feather name={iconName} size={20} color={COLORS.black900} />
                 </View>
-                <Text style={styles.title}>
+                <Text style={[SIZES2.text_sm]}>
                     {title}
                 </Text>
             </View>

@@ -1,17 +1,23 @@
 //
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/core';
 import { COLORS } from '../../../../theme/globalStyle';
 import CustomButton from '../../../../components/CustomBtn';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import courtImage from '../../../../../assets/images/Futsals/futsal1.jpeg'
+import AuthenticateModal from '../../../../components/authenticateModal';
+import { useDispatch } from 'react-redux';
+import { addBookingCourtId } from '../../../../redux/homeSlice'
 //
-const CourtsCard = ({ id, futsalName, campacity, price, imageUrl }) => {
+const CourtsCard = ({ data = {}, venueId = 0, distance = 0, venueAddress = "", venueCity = "", isLoggedIn = false }) => {
     const { navigate } = useNavigation();
+    const [authenticateModal, setAuthenticateModal] = useState(false)
+    const dispatch = useDispatch()
     return (
         <View style={styles.container}>
             <View style={styles.imageCon}>
                 <Image
-                    source={imageUrl}
+                    source={courtImage}
                     resizeMode="cover"
                     style={{ width: '100%', height: "100%", borderRadius: 7 }}
                 />
@@ -19,25 +25,39 @@ const CourtsCard = ({ id, futsalName, campacity, price, imageUrl }) => {
             <View style={styles.contentCon}>
                 {/* futsal name */}
                 <Text style={styles.headingTxt}>
-                    {futsalName}
+                    {data?.name}
                 </Text>
                 {/* campacity and price per hour container */}
                 <View style={[styles.rowCon]}>
                     <Text style={styles.priceText}>
-                        {price} per hour
+                        ${data?.basePrice} per hour
                     </Text>
                     <View style={styles.campacityCon}>
                         <Text style={styles.campacityText}>
-                            {campacity}
+                            {data?.activePlayersPerTeam} vs {data?.activePlayersPerTeam}
                         </Text>
                     </View>
                 </View>
                 <CustomButton
-                    title="Book This Ground"
+                    title="Book Now"
                     titleStyle={styles.btnTxt}
-                    onClickHandler={() => navigate('FutsalsStack', { screen: "BookingDetails", initial: false, params: { id, futsalName } })}
+                    onClickHandler={() => {
+                        if (isLoggedIn) {
+                            dispatch(addBookingCourtId(data?.id))
+                            navigate('FutsalsStack',
+                                {
+                                    screen: "BookingDetails",
+                                    initial: false,
+                                    params: { id: data?.id, courtName: data?.name, venueId, venueCity, venueAddress, distance }
+                                })
+                        } else {
+                            setAuthenticateModal(true)
+                        }
+
+                    }}
                 />
             </View>
+            <AuthenticateModal authenticateModal={authenticateModal} venueId={venueId} setAuthenticateModal={setAuthenticateModal} />
         </View>
     )
 }

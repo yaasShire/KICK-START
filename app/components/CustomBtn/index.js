@@ -1,14 +1,20 @@
 //
 import React from 'react';
-import { COLORS } from '../../theme/globalStyle';
-import { Pressable, StyleSheet, Text, TouchableOpacity, } from 'react-native';
+import { COLORS, SIZES2 } from '../../theme/globalStyle';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, } from 'react-native';
 //
-const CustomButton = ({ title = "Title", style = {}, color = "#ffffff", titleStyle = {}, onClickHandler = () => { } }) => {
+const CustomButton = ({ title = "Title", style = {}, color = "#ffffff", titleStyle = {}, onClickHandler = () => { }, loading = false, disableBtn = false, customStyle = {}, textStyle = {} }) => {
     return (
-        <TouchableOpacity style={[styles.container, style]} onPress={onClickHandler} activeOpacity={0.8}>
-            <Text style={[styles.title, , titleStyle, { color: color }]}>
-                {title}
-            </Text>
+        <TouchableOpacity disabled={disableBtn} style={[styles.container(disableBtn, customStyle), style]} onPress={onClickHandler} activeOpacity={0.8}>
+            {
+                loading ?
+                    <ActivityIndicator size={'small'} color={COLORS.bg_primary} />
+                    :
+                    <Text style={[styles.title, , titleStyle, SIZES2.text_md, { color: color, ...textStyle }]}>
+                        {title}
+                    </Text>
+            }
+
         </TouchableOpacity>
     )
 }
@@ -16,11 +22,13 @@ const CustomButton = ({ title = "Title", style = {}, color = "#ffffff", titleSty
 export default CustomButton;
 //
 const styles = StyleSheet.create({
-    container: {
-        padding: '3.4%',
+    container: (disableBtn, customStyle) => ({
+        padding: '3.9%',
         borderRadius: 5,
-        backgroundColor: COLORS.primary_color
-    },
+        backgroundColor: COLORS.primary_color,
+        opacity: disableBtn ? .6 : 1,
+        ...customStyle
+    }),
     title: {
         fontSize: 16,
         fontWeight: '700',

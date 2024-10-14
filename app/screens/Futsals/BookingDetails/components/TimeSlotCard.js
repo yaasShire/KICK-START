@@ -1,42 +1,72 @@
-//
 import React, { useMemo } from 'react';
-import { COLORS } from '../../../../theme/globalStyle';
+import { COLORS, SIZES2 } from '../../../../theme/globalStyle';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-//
-const TimeSlotCard = ({ id, time, status, price, selectedTimeSlot = '', onSelectCard = () => { } }) => {
-    const isActive = useMemo(() => {
-        return selectedTimeSlot == time;
-    }, [selectedTimeSlot])
+const TimeSlotCard = ({ id, time, status, price, selectedTimeSlot = '', onSelectCard = () => { }, data = {}, selectedDate = "" }) => {
+    const bookedDates = data?.bookedDates ?? [];
+
+    // Function to convert '03:00 PM' format to a Date object
+    const convertTo24Hour = (timeString) => {
+        const [time, modifier] = timeString.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') {
+            hours = '00';
+        }
+        if (modifier === 'PM') {
+            hours = parseInt(hours, 10) + 12;
+        }
+        return new Date(selectedDate).setHours(hours, minutes);
+    };
+
+    const startTime = useMemo(() => convertTo24Hour(data?.startTime), [data?.startTime]);
+    const endTime = useMemo(() => convertTo24Hour(data?.endTime), [data?.endTime]);
+
+    // Get current time for comparison
+    const currentTime = new Date().getTime();
+
+    const isTimeExpired = useMemo(() => {
+        return currentTime > endTime;
+    }, [currentTime, endTime]);
+
+    const isBooked = useMemo(() => {
+        return bookedDates.includes(selectedDate) || isTimeExpired;
+    }, [selectedTimeSlot, isTimeExpired]);
+
+    const isSelectedTimeSlot = useMemo(() => {
+        return selectedTimeSlot == data?.startTime + " - " + data?.endTime;
+    }, [selectedTimeSlot]);
+
     const Status = () => {
-    }
-    //
+    };
+
+
+
     return (
-        <Pressable onPress={status == "unAvailable" ? Status : onSelectCard} style={[styles.container, { borderColor: isActive ? COLORS.primary_color : COLORS.gray_color }]}>
+        <Pressable onPress={isBooked ? Status : onSelectCard} style={[styles.container, { borderColor: (isSelectedTimeSlot && !isBooked) ? COLORS.primary_color : COLORS.gray_color }]}>
             <MaterialCommunityIcons
                 size={23}
                 style={styles.checkBoxIcon}
-                color={isActive ? COLORS.primary_color : COLORS.gray_color}
-                name={status == "unAvailable" ? "checkbox-blank-off-outline" : isActive ? "checkbox-marked-outline" : "checkbox-blank-outline"}
+                color={isBooked ? COLORS.gray_color : COLORS.primary_color}
+                name={isBooked ? "checkbox-blank-off-outline" : isSelectedTimeSlot ? "checkbox-marked-outline" : "checkbox-blank-outline"}
             />
-            <Text style={[styles.status, { color: status == "unAvailable" ? "red" : COLORS.primary_color }]}>
-                {status}
+            <Text style={[styles.status, { color: isBooked ? "red" : COLORS.primary_color }]}>
+                {status} {isBooked ? 'unAvailable' : 'available'}
             </Text>
             <View style={{ rowGap: 10, marginTop: 7 }}>
-                <Text style={[styles.priceTxt, { color: status == "unAvailable" ? COLORS.black700 : isActive ? COLORS.primary_color : COLORS.tertiary_color, textAlign: "center" }]}>
+                <Text style={[styles.priceTxt, { color: isBooked ? COLORS.black700 : COLORS.tertiary_color, textAlign: "center" }]}>
                     ${price}
                 </Text>
-                <Text style={[styles.dayTxt, { color: status == "unAvailable" ? COLORS.black700 : isActive ? COLORS.primary_color : COLORS.black900 }]}>
-                    {time}
+                <Text style={[styles.dayTxt, { color: isBooked ? COLORS.black700 : COLORS.black900 }]}>
+                    {data?.startTime} - {data?.endTime}
                 </Text>
             </View>
         </Pressable>
     )
 }
-//
+
 export default TimeSlotCard;
-//
+
 const styles = StyleSheet.create({
     container: {
         width: '47%',
@@ -52,16 +82,12 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.bg_primary,
     },
     dayTxt: {
-        fontSize: 14,
-        fontWeight: '500',
+        ...SIZES2.text_sm,
         letterSpacing: 0.5,
-        // textAlign: 'center',
         color: COLORS.black800,
-        // textTransform: 'uppercase',
     },
     priceTxt: {
-        fontSize: 16,
-        fontWeight: "bold",
+        ...SIZES2.text_md,
         letterSpacing: 0.5,
         textAlign: 'center',
         color: COLORS.secondary_color,
@@ -79,5 +105,4 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: COLORS.black700
     }
-})
-//
+});

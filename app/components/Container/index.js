@@ -2,16 +2,16 @@
 import React from 'react';
 import Devider from '../Devider';
 import { StyleSheet, Text, View } from 'react-native';
-import { appLayout, COLORS } from '../../theme/globalStyle';
+import { appLayout, COLORS, SIZES2 } from '../../theme/globalStyle';
 //
 const Container = ({ title = "Title", viewAll = null, children, containerStyle, childredConStyle = {}, onViewAll = () => { } }) => {
     return (
         <View style={[styles.container, containerStyle]}>
             <View style={styles.titleCon}>
-                <Text style={styles.title}>
+                <Text style={[SIZES2.text_md]}>
                     {title}
                 </Text>
-                {viewAll && <Text onPress={onViewAll} style={styles.viewAll}>{viewAll}</Text>}
+                {viewAll && <Text onPress={onViewAll} style={[SIZES2.text_sm]}>{viewAll}</Text>}
             </View>
             <Devider height={3} />
             <View style={[styles.childrenCon, childredConStyle]}>

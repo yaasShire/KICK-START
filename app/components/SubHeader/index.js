@@ -6,8 +6,9 @@ import { useNavigation } from '@react-navigation/core';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { COLORS, SIZES2 } from '../../theme/globalStyle';
 //
-const SubHeader = ({ title = "Title", }) => {
+const SubHeader = ({ title = "Title", showNotification = true, titleColor = "#000", notIconColor = "#000", backBtnColor = "#000" }) => {
     const navigation = useNavigation();
     return (
         <View style={styles.container}>
@@ -15,19 +16,23 @@ const SubHeader = ({ title = "Title", }) => {
                 <AntDesign
                     name="left" size={25}
                     // style={{ backgroundColor: "blue" }}
-                    color="#ffffff" onPress={() => navigation.pop()}
+                    color={backBtnColor} onPress={() => navigation.pop()}
                 />
-                <Pressable style={styles.whistleIconCon} onPress={() => navigation.navigate('Notifications')} >
-                    <Badge size={17} style={styles.badge} >
-                        3
-                    </Badge>
-                    <MaterialCommunityIcons name="whistle-outline" size={30} color="#ffffff" style={styles.icon} />
-                </Pressable>
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <Text style={[SIZES2.text_md, { color: titleColor }]}>
+                        {title}
+                    </Text>
+                </View>
+                {
+                    showNotification &&
+                    <Pressable style={styles.whistleIconCon} onPress={() => navigation.navigate('Notifications')} >
+                        <Badge size={17} style={styles.badge} >
+                            3
+                        </Badge>
+                        <MaterialCommunityIcons name="whistle-outline" size={30} color={notIconColor} style={styles.icon} />
+                    </Pressable>
+                }
             </View>
-            <Devider />
-            <Text style={styles.title}>
-                {title}
-            </Text>
         </View>
     )
 }

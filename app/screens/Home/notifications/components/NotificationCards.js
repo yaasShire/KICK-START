@@ -1,25 +1,29 @@
 //
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '../../../../theme/globalStyle';
+import { COLORS, SIZES2 } from '../../../../theme/globalStyle';
 import Feather from 'react-native-vector-icons/Feather';
+import { Avatar } from 'react-native-paper';
 //
-const NatificationCards = ({ title, description, dateAndTime }) => {
+const NatificationCards = ({ title, description, dateAndTime, data = {} }) => {
+    console.log(data);
     return (
         <View style={styles.container}>
             {/* icon container */}
             <View style={styles.iconContainer}>
-                <Feather name="bell" size={22} />
+                {/* <Feather name="bell" size={22} /> */}
+                <Avatar.Image source={{ uri: data?.image }} size={45} />
             </View>
             <View style={styles.contentCon}>
                 <Text style={styles.content}>
                     <Text style={styles.title}>
-                        {title + ' '}
+                        {data?.venueName + ': '}
                     </Text>
-                    {description}
+                    {/* {description} */}
+                    your order is {data?.status} {data?.status == "Pending" ? "we notified the provider" : data?.status == "Accepted" ? "and placed successfully" : data?.status == "Cancelled" ? "we are sorry about that" : null}
                 </Text>
                 <Text style={styles.date}>
-                    {dateAndTime}
+                    {data?.bookingDate}
                 </Text>
             </View>
         </View>
@@ -56,23 +60,22 @@ const styles = StyleSheet.create({
     },
     contentCon: {
         flex: 1,
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-        alignItems: 'center',
+        // flexWrap: 'wrap',
+        // flexDirection: 'row',
+        alignItems: 'flex-start',
     },
     content: {
-        fontSize: 13,
-        fontWeight: '300',
+        ...SIZES2.text_sm
     },
     title: {
-        fontSize: 15,
+        ...SIZES2.text_md,
         marginRight: 5,
-        fontWeight: '500'
     },
     date: {
         marginTop: 7,
         fontSize: 13,
-        fontWeight: '300'
+        fontWeight: '300',
+        ...SIZES2.text_sm
     }
 })
 //

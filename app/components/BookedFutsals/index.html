@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venue Booking Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .venueCourtNamesWrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            background-color: #000;
+            border-radius: 50%;
+            margin: 0 5px;
+        }
+
+        .cardContent {
+            padding: 10px 0;
+        }
+
+        .row1,
+        .row2 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .imagesInfoWrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .dateWrapper,
+        .matchTimeWrapper {
+            padding: 5px;
+            background-color: #000;
+            color: #fff;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .actionsWrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .actionsWrapper a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #ddd;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="venueCourtNamesWrapper">
+                <span>${data?.venueName}</span>
+                <div class="dot"></div>
+                <span>${data?.courtName}</span>
+            </div>
+        </div>
+
+        <div class="cardContent">
+            <div class="row1">
+                <div class="imagesInfoWrapper">
+                    <img src="${data?.image}" alt="Venue Image" class="avatar" />
+                    <div>
+                        <span>${data?.venueName}</span><br>
+                        <span>Date: ${data?.bookingDate}</span>
+                    </div>
+                </div>
+                <span>Pending</span>
+                <span>$100</span>
+            </div>
+            <div class="divider"></div>
+            <div class="row2">
+                <div class="dateWrapper">2024-10-5</div>
+                <div class="matchTimeWrapper">06:00 - 07:00</div>
+                <div class="actionsWrapper">
+                    <a href="tel:*712*612518368*${data?.totalPrice}#"><img src="wallet-icon.png" alt="Pay"></a>
+                    <a href="tel:${data?.venuePhoneNumber}"><img src="phone-icon.png" alt="Call"></a>
+                    <a href="http://api.whatsapp.com/send?phone=252${data?.venuePhoneNumber}">
+                        <img style="width: 40px; height: 40px;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeHq-vaUK8MlOy8sPlCE5cHlSF9w7jUJ6YDQ&s"
+                            alt="WhatsApp">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

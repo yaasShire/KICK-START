@@ -6,8 +6,9 @@ import image from '../../../../assets/images/img1.png';
 import { Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { AuthHeader, CustomBtn, Devider } from '../../../components';
 //
-const WelcomeScreen = () => {
+const WelcomeScreen = ({ route }) => {
     const { navigate } = useNavigation();
+    console.log(route.params);
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView style={styles.scrollCon}>
@@ -24,7 +25,7 @@ const WelcomeScreen = () => {
                 </Text>
                 <Devider height={50} />
                 <CustomBtn
-                    onClickHandler={() => navigate('SignUpScreen')}
+                    onClickHandler={() => navigate('SignUpScreen', { params: route?.params })}
                     title="Create New Account"
                     color={COLORS.black900}
                     style={styles.signUpBtn}
@@ -35,7 +36,7 @@ const WelcomeScreen = () => {
                 </Text>
                 <Devider />
                 <CustomBtn
-                    onClickHandler={() => navigate('LoginStack')}
+                    onClickHandler={() => navigate('LoginStack', { screen: "Login", params: route?.params })}
                     title="Login"
                     style={styles.loginBtn}
                 />

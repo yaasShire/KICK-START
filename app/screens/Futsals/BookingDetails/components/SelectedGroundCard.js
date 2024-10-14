@@ -1,22 +1,22 @@
 //
 import React, { useMemo, useState } from 'react';
-import { COLORS } from '../../../../theme/globalStyle';
+import { COLORS, SIZES2 } from '../../../../theme/globalStyle';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 //
 const { width, height } = Dimensions.get('screen');
 //
-const SelectedGroundCard = ({ id, futsalName, campacity, price, selectFutsal = '', onSelectCard = () => { } }) => {
+const SelectedGroundCard = ({ id, futsalName, campacity, price, selectFutsal = '', onSelectCard = () => { }, data = {} }) => {
     // get active category
     const isActive = useMemo(() => {
-        return selectFutsal == futsalName;
+        return selectFutsal == data?.name;
     }, [selectFutsal])
     //
     return (
         <Pressable onPress={onSelectCard} style={[styles.container, { borderColor: isActive ? COLORS.primary_color : COLORS.gray_color }]}>
             <View style={styles.rowCon}>
                 <Text style={styles.futsalNameTxt}>
-                    {futsalName}
+                    {data?.name}
                 </Text>
                 <MaterialCommunityIcons
                     size={23}
@@ -27,11 +27,11 @@ const SelectedGroundCard = ({ id, futsalName, campacity, price, selectFutsal = '
             </View>
             <View style={[styles.rowCon]}>
                 <Text style={styles.priceText}>
-                    {price} per hour
-                    </Text>
+                    ${data?.basePrice} per hour
+                </Text>
                 <View style={styles.campacityCon}>
                     <Text style={styles.campacityText}>
-                        {campacity}
+                        {data?.activePlayersPerTeam} vs {data?.activePlayersPerTeam}
                     </Text>
                 </View>
             </View>
@@ -43,13 +43,12 @@ export default SelectedGroundCard;
 //
 const styles = StyleSheet.create({
     container: {
-        height: 80,
         rowGap: 10,
         borderWidth: 1,
         borderRadius: 7,
-        height: 100,
+        height: 90,
         width: width / 2,
-        paddingHorizontal: '6%',
+        padding: '5%',
         justifyContent: "center",
         borderColor: COLORS.gray_color,
         backgroundColor: COLORS.bg_primary
@@ -60,19 +59,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     futsalNameTxt: {
-        fontSize: 15,
-        fontWeight: '700',
+        ...SIZES2.text_md,
         letterSpacing: 0.5,
         color: COLORS.black900
     },
     checkBoxIcon: {
-        top: -14,
+        top: -8,
         right: -4,
         position: 'relative',
     },
     priceText: {
-        fontSize: 13,
-        fontWeight: '700',
+        ...SIZES2.text_sm,
         textTransform: 'uppercase',
         color: COLORS.primary_color
     },
@@ -83,8 +80,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.black600
     },
     campacityText: {
-        fontSize: 12,
-        fontWeight: '800',
+        ...SIZES2.text_sm,
         letterSpacing: 0.5,
         color: COLORS.black800,
         textTransform: 'uppercase'

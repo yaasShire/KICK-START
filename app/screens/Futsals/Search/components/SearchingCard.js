@@ -1,35 +1,43 @@
 //
 import React from 'react';
 import { COLORS } from '../../../../theme/globalStyle';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import venueImage from '../../../../../assets/images/Futsals/futsal1.jpeg'
+import { calculateDistance } from '../../../../utilities';
+import { useNavigation } from '@react-navigation/native';
 //
-const SearchingCard = ({ id, futsalName, distance, address, imageUrl }) => {
+const SearchingCard = ({ data = {}, location = {}, saveSearchedVenue = () => { } }) => {
+    let distance = 0
+    if (location?.latitude && location?.longitude) {
+        distance = calculateDistance(location.latitude, location?.longitude, Number(data?.latitude), Number(data?.longitude));
+    }
+
     return (
-        <View style={styles.container}>
+        <Pressable onPress={() => saveSearchedVenue(data)} style={styles.container}>
             <View style={styles.contentCon}>
                 {/* Image */}
                 <Image
-                    source={imageUrl}
+                    source={venueImage}
                     resizeMode="cover"
                     style={{ width: 60, height: 60, borderRadius: 7 }}
                 />
                 {/* Contect Container */}
                 <View style={styles.FutsalInfo}>
                     <Text style={styles.futsalName}>
-                        {futsalName}
+                        {data?.name}
                     </Text>
                     <Text style={styles.distance}>
-                        {distance} away for you
+                        {distance?.toFixed(2)}km away for you
                     </Text>
                     <Text style={styles.address}>
-                        {address}
+                        {data?.address}
                     </Text>
                 </View>
             </View>
             {/* icon */}
             <MaterialCommunityIcons name="replay" size={27} color={COLORS.black700} />
-        </View>
+        </Pressable>
     )
 }
 //

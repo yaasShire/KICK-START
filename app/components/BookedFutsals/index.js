@@ -1,192 +1,224 @@
-//
-import React from 'react';
-import { COLORS } from '../../theme/globalStyle';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Devider from '../Devider';
-import CustomButton from '../CustomBtn';
-import { IconButton } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/core';
-//
-const BookedFutsalCards = ({ id, futsalName, distance, address, campacity, price, courtName, imageUrl }) => {
-    const { navigate } = useNavigation();
-    //
-    const onCancelBooking = () => {
-        navigate("BookedFutsalsStack", {
-            initial: false,
-            screen: "CancelBooking",
-            params: {
-                id, futsalName, distance, address, campacity, price, courtName, imageUrl
+import { View, Text, StyleSheet, Pressable, Linking, TouchableOpacity } from 'react-native'
+import React from 'react'
+import { Entypo, Feather, FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import { Avatar, Divider } from 'react-native-paper'
+import { COLORS, LAY_OUT, SIZES2 } from '../../theme/globalStyle'
+import * as FileSystem from 'expo-file-system';
+import generateHTMLContent from './HtmlContent'
+import * as Sharing from 'expo-sharing';
+import { formatReadableDate } from '../../utilities/data'
+
+
+const BookedFutsalCards = ({ data = {} }) => {
+
+    const downloadHTMLReport = async (data) => {
+        const htmlContent = generateHTMLContent(data);
+        const fileUri = FileSystem.documentDirectory + `${data?.venueName + "-" + data?.id}.html`;
+
+        await FileSystem.writeAsStringAsync(fileUri, htmlContent, {
+            encoding: FileSystem.EncodingType.UTF8
+        });
+
+        console.log('HTML file saved to:', fileUri);
+    };
+    const saveReportAsFile = async (htmlContent) => {
+        try {
+            // Define the file path where you want to save the HTML file
+            const fileName = `${FileSystem.documentDirectory}invoice-${data?.venueName + "-" + data?.id}.html`;
+
+            // html content
+
+            // Write the HTML content to the file
+            await FileSystem.writeAsStringAsync(fileName, htmlContent);
+
+            // Check if sharing is available and share the file
+            if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(fileName);
+            } else {
+                console.log("Sharing is not available on this device");
             }
-        })
+
+            console.log('File saved successfully at:', fileName);
+        } catch (error) {
+            console.error('Error saving file:', error);
+        }
+    };
+    const saveFile = async () => {
+        const htmlContent = generateHTMLContent(data);
+        saveReportAsFile(htmlContent);
+
     }
-    //
+
+    // 
+
     return (
-        <View style={styles.mainContainer}>
-            <View style={styles.container}>
-                <View style={styles.imageCon}>
-                    <Image
-                        source={imageUrl}
-                        resizeMode="cover"
-                        style={{ width: '100%', height: 90, borderRadius: 7 }}
-                    />
-                </View>
-                <View style={styles.contentCon}>
-                    {/* futsal name and hear icon container */}
-                    <View style={styles.rowCon}>
-                        <Text style={styles.headingTxt}>
-                            {futsalName}
-                        </Text>
-                        <Pressable>
-                            <MaterialCommunityIcons name="checkbox-multiple-marked-outline" size={20} color={COLORS.primary_color} />
-                        </Pressable>
-                    </View>
-                    {/* distance and address and distance between icon container */}
-                    <View style={[styles.rowCon, { columnGap: 3, justifyContent: 'flex-start' }]}>
-                        <MaterialCommunityIcons name="map-marker-distance" size={12} />
-                        <Text style={styles.paragraphTxt}>
-                            {distance} | {address}
-                        </Text>
-                    </View>
-                    {/* campacity and price per hour container */}
-                    <View style={[styles.rowCon]}>
-                        <Text style={styles.priceText}>
-                            {price} per hour
-                        </Text>
-                    </View>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Ionicons name='football' size={18} />
+                <View style={styles.venueCourtNamesWrapper}>
+                    <Text style={[SIZES2.text_sm]}>{data?.venueName}</Text>
+                    <View style={styles.dot} />
+                    <Text style={[SIZES2.text_sm]}>{(formatReadableDate(data?.matchDate))}</Text>
                 </View>
             </View>
-            <Devider height={12} />
-            <View style={styles.rowCon}>
-                <Text style={styles.courtText}>
-                    {courtName}
-                </Text>
-                <View style={styles.campacityCon}>
-                    <Text style={styles.campacityText}>
-                        {campacity}
-                    </Text>
+            <View style={styles.cardContent}>
+                <View style={styles.row1}>
+                    <View style={styles.imagesInfoWrapper}>
+                        <Avatar.Image size={50} source={{ uri: data?.image }} />
+                        <View>
+                            <Text style={[SIZES2.text_sm]}>{data?.venueName}</Text>
+                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                <Text style={[SIZES2.text_sm, { color: COLORS.gray_font_color }]}>Booked:</Text>
+                                <Text style={[SIZES2.text_sm, { color: COLORS.gray_font_color }]}>{data?.bookingDate}</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={[{ ...SIZES2.text_sm, color: COLORS.linkColor }]}>{data?.status}</Text>
+                    </View>
+                    <View>
+                        <Text style={[SIZES2.text_md]}>${data?.totalPrice}</Text>
+                    </View>
                 </View>
-                <View style={styles.dateCon}>
-                    <AntDesign name="calendar" />
-                    <Text style={styles.dateText}>
-                        12 Feb,2023
-                    </Text>
+                <Divider />
+                <View style={styles.row2}>
+                    <View style={styles.dateWrapper}>
+                        <Text style={[SIZES2.text_sm, { color: "#000" }]}>{data?.matchDate}</Text>
+                    </View>
+                    <View style={styles.matchTimeWrapper}>
+                        <Text style={[SIZES2.text_sm, { color: "#fff" }]}>{data?.startTime} - {data?.endTime}</Text>
+                    </View>
+                    <View style={styles.actionsWrapper}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                saveFile()
+                            }}
+                            style={[]}>
+                            <MaterialCommunityIcons name='download-circle' size={23} color={"#556B2F"} />
+                        </TouchableOpacity>
+                        {
+                            data?.status == "Pending" &&
+                            <TouchableOpacity
+                                onPress={() => {
+                                    Linking.openURL(`tel:*712*612518368*${data?.totalPrice}#`)
+                                }}
+                                style={[]}>
+                                <Entypo name='wallet' size={23} color={COLORS.linkColor} />
+                            </TouchableOpacity>
+                        }
+                        <TouchableOpacity
+                            onPress={() => {
+                                Linking.openURL(`tel:${data?.venuePhoneNumber}`)
+                            }}
+                            style={[]}>
+                            <Feather name='phone-call' size={20} color={"#000"} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                Linking.openURL(
+                                    `http://api.whatsapp.com/send?phone=252${data?.venuePhoneNumber}`
+                                )
+                            }}
+                            style={[]}>
+                            <FontAwesome name='whatsapp' size={24} color={"#47c355"} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-            <Devider height={12} />
-            {/* Controls Container */}
-            <View style={styles.controlsCon}>
-                <IconButton
-                    size={25}
-                    icon="close"
-                    style={styles.unBookBtn}
-                    onPress={onCancelBooking}
-                />
-                <CustomButton title="View Booking Details" style={styles.bookingBtn} color={COLORS.primary_color} />
             </View>
         </View>
     )
 }
-//
-export default BookedFutsalCards;
-//
+
+export default BookedFutsalCards
+
 const styles = StyleSheet.create({
-    mainContainer: {
-        width: '100%',
-        padding: '4%',
-        borderRadius: 7,
-        shadowColor: "#000000",
-        shadowOffset: {
-            width: 1,
-            height: 1,
-        },
-        shadowOpacity: 0.17,
-        shadowRadius: 3.05,
-        elevation: 3,
-        backgroundColor: COLORS.bg_primary,
-    },
     container: {
-        flexDirection: 'row',
-        columnGap: 10,
-    },
-    imageCon: {
-        flex: 0.5,
-        borderRadius: 7,
-        backgroundColor: COLORS.light_green_color
-    },
-    contentCon: {
-        flex: 1,
-        rowGap: 10,
-        height: 90,
-        paddingVertical: '1%',
-        justifyContent: 'space-between',
-        // backgroundColor: COLORS.tertiary_color
-    },
-    rowCon: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    headingTxt: {
-        fontSize: 16,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        color: COLORS.black900
-    },
-    paragraphTxt: {
-        fontSize: 12,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        color: COLORS.black800
-    },
-    bookingBtn: {
-        flex: 1,
+        backgroundColor: "#fff",
+        borderRadius: 5,
         borderWidth: 1,
-        borderColor: COLORS.primary_color,
-        backgroundColor: COLORS.bg_primary,
+        borderColor: COLORS.bg_secondary
     },
-    priceText: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        color: COLORS.primary_color
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderTopRightRadius: 5,
+        borderTopLeftRadius: 5,
+        columnGap: 4,
+        padding: LAY_OUT.padding,
+        backgroundColor: COLORS.bg_tertiary,
+        borderBottomWidth: 1,
+        borderColor: COLORS.bg_secondary
     },
-    campacityCon: {
-        borderRadius: 50,
-        paddingVertical: "1.5%",
-        paddingHorizontal: '4%',
-        backgroundColor: COLORS.black600
+    dot: {
+        width: 5,
+        height: 5,
+        backgroundColor: COLORS.gray_font_color,
+        borderRadius: 50
     },
-    campacityText: {
-        fontSize: 12,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        color: COLORS.black800,
-        textTransform: 'uppercase'
-    },
-    courtText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: COLORS.black800
-    },
-    dateCon: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    venueCourtNamesWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
         columnGap: 5
     },
-    dateText: {
-        fontSize: 12,
-        color: COLORS.black800
+    row1: {
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: LAY_OUT.padding
     },
-    controlsCon: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    row2: {
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: LAY_OUT.padding
+    },
+    imagesInfoWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
+        columnGap: 5
+    },
+    btnsWrapper: {
+        flexDirection: "row",
         columnGap: 10
     },
-    unBookBtn: {
-        borderRadius: 5,
-        backgroundColor: "#FAB5B5"
+    cardContent: {
+        // padding: LAY_OUT.padding,
+        // rowGap: 1
+    },
+    matchTimeWrapper: {
+        backgroundColor: "#000",
+        borderRadius: 10,
+        padding: 2,
+        paddingHorizontal: 9
+    },
+    dateWrapper: {
+        backgroundColor: COLORS.bg_secondary,
+        borderRadius: 10,
+        padding: 2,
+        paddingHorizontal: 9
+    },
+    actionsWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        columnGap: 10
+    },
+    actionBtn: {
+        backgroundColor: "blue",
+        height: 30,
+        width: 30,
+        flexDirection: "row",
+        justifyContent: "center",
+        columnGap: 5,
+        alignItems: "center",
+        borderRadius: 50
+    },
+    callBtn: {
+        backgroundColor: "#5fc993"
+    },
+    messageBtn: {
+        backgroundColor: "#47c355"
     }
 })
-//

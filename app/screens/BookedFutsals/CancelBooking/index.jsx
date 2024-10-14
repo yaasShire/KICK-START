@@ -1,11 +1,11 @@
 //
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/core';
-import { appLayout, COLORS } from '../../../theme/globalStyle';
+import { appLayout, COLORS, SIZES2 } from '../../../theme/globalStyle';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { CustomBtn, Devider, SubHeader } from '../../../components';
 import futsalLogo from '../../../../assets/images/Futsals/futsalLogo3.png';
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CancelBookingModal from './components/CancelBookingModal';
 //
@@ -13,9 +13,10 @@ const CancelBookingScreen = ({ route }) => {
     const futsalInfo = route.params;
     const { getParent } = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
+    const { goBack } = useNavigation()
     //
     useEffect(() => {
-        getParent().setOptions({ tabBarStyle: { display: 'none' } })
+        // getParent().setOptions({ tabBarStyle: { display: 'none' } })
         return () => {
             getParent().setOptions({
                 tabBarStyle: {
@@ -30,8 +31,9 @@ const CancelBookingScreen = ({ route }) => {
     }, [])
     //
     return (
-        <SafeAreaView style={styles.mainContainer}>
-            <ScrollView style={styles.scrollCon}>
+        <View style={styles.mainContainer}>
+            <SafeAreaView />
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollCon}>
                 {/* Header */}
                 <View style={styles.head}>
                     <SubHeader title="" />
@@ -87,28 +89,29 @@ const CancelBookingScreen = ({ route }) => {
                 </View>
                 <Devider />
                 <View style={styles.controlsCon}>
-                    <Text style={styles.messageTxt}>
-                        Someone from the Futsal will accept your request
-                        and will contect you soon
+                    <Text style={[styles.messageTxt, SIZES2.text_sm]}>
+                        Someone from the Venue will accept your request
+                        and will contact you soon
                     </Text>
                     <Devider />
                     <CustomBtn
                         color="red"
                         title="Cancel Booking"
-                        style={{ backgroundColor: "#ffffff" }}
+                        style={{ backgroundColor: COLORS.bg_secondary }}
                         onClickHandler={() => setModalVisible(true)}
                     />
                     <Devider />
                     <CustomBtn
                         title="Back"
-                        color={COLORS.primary_color}
-                        style={{ backgroundColor: "#ffffff" }}
+                        color={COLORS.bg_primary}
+                        style={{ backgroundColor: COLORS.primary_color }}
+                        onClickHandler={() => goBack()}
                     />
                 </View>
                 {/* Cancel Booking Modal */}
                 {modalVisible && <CancelBookingModal hideModal={setModalVisible} />}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     )
 }
 //
@@ -130,7 +133,7 @@ const CourtInfo = ({ title, value, side = "left" }) => {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: COLORS.primary_color
+        backgroundColor: COLORS.bg_primary
     },
     scrollCon: {
         flex: 1,
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
         height: 370,
         borderRadius: 10,
         marginLeft: "5%",
-        backgroundColor: "#fff"
+        backgroundColor: COLORS.bg_secondary
     },
     futsalLogoCon: {
         width: 130,
@@ -191,7 +194,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         left: -15,
         position: "relative",
-        backgroundColor: COLORS.primary_color
+        backgroundColor: COLORS.bg_primary
     },
     circle2: {
         width: 30,
@@ -199,7 +202,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         right: -15,
         position: "relative",
-        backgroundColor: COLORS.primary_color
+        backgroundColor: COLORS.bg_primary
     },
     line: {
         flex: 1,

@@ -2,15 +2,15 @@
 import React from 'react';
 import Devider from '../Devider';
 import { StyleSheet, Text, View } from 'react-native';
-import { appLayout, COLORS } from '../../theme/globalStyle';
+import { appLayout, COLORS, SIZES2 } from '../../theme/globalStyle';
 //
-const ListHeader = ({ title = "Title", textButton = null, children, containerStyle, childredConStyle = {}, onClickTextButton = () => { } }) => {
+const ListHeader = ({ title = "Title", textButton = null, children, containerStyle, childredConStyle = {}, onClickTextButton = () => { }, numberOfCourts = 0 }) => {
     return (
         <View style={[styles.container, containerStyle]}>
-            <Text style={styles.title}>
+            <Text style={[SIZES2.text_sm]}>
                 {title}
             </Text>
-            {textButton && <Text onPress={onClickTextButton} style={styles.textButton}>{textButton}</Text>}
+            {textButton && <Text onPress={onClickTextButton} style={styles.textButton}>{numberOfCourts}</Text>}
         </View>
     )
 }

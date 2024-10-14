@@ -6,18 +6,18 @@ import { COLORS } from '../../../../theme/globalStyle';
 //
 const { width, height } = Dimensions.get('screen');
 //
-const AmenitiesCard = ({ amenityName, imageUrl }) => {
+const AmenitiesCard = ({ amenityName, imageUrl, data = {} }) => {
     return (
         <View style={styles.container}>
             <View style={styles.imageCon}>
                 <Image
-                    source={imageUrl}
+                    source={{ uri: data?.iconUrl }}
                     resizeMode="cover"
                     style={{ width: '100%', height: '100%' }}
                 />
             </View>
             <Text style={styles.amenityName}>
-                {amenityName}
+                {data?.name}
             </Text>
         </View>
     )

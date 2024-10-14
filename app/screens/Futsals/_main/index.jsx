@@ -1,44 +1,87 @@
 //
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/core';
-import { COLORS, appLayout } from '../../../theme/globalStyle';
+import { COLORS, LAY_OUT, SIZES2, appLayout } from '../../../theme/globalStyle';
 import { Devider, Header, SearchingBtn, Container, FutsalCards, BookedFutsalCards, ListHeader } from '../../../components';
-import { Dimensions, ScrollView, SafeAreaView, StatusBar, StyleSheet, Text, View, Image, Button, FlatList, Platform } from 'react-native';
+import { Dimensions, ScrollView, StatusBar, StyleSheet, SafeAreaView, Text, View, Image, Button, FlatList, Platform, ActivityIndicator } from 'react-native';
 import { nearByFutsalsData } from '../../../data';
+import useFechtDataWithOutToken from '../../../api/getData';
+import notFoundFutsalImage from '../../../../assets/images/Futsals/notFound.png'
+import { get } from '../../../api/get';
+import SearchHeader from '../../../components/SearchingBtn';
+import { useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView as SafeAreaViewAndroidView } from 'react-native-safe-area-context';
+
 //
 const { width, height } = Dimensions.get('window');
 //
 const FutsalsScreen = ({ route }) => {
     const { navigate } = useNavigation();
     const [locationPermision, setLocationPermision] = useState(true)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const [venues, setVenues] = useState([])
     const viewAll = () => {
         alert('View All')
     }
+
+    // get all venues
+    // const { data: allVenues, loading:loading1, error:error1, refetchData } = useFechtDataWithOutToken('venue/get');
+
+    const getVenues = async () => {
+        setLoading(true)
+        const { result } = await get("venue/get", setError, setLoading)
+        setVenues(result)
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            getVenues()
+        }, [])
+    )
+
+    const onSearch = () => {
+        navigate('Searching')
+    }
+    const onFilter = () => {
+        navigate('Filtering')
+    }
+
     return (
-        <SafeAreaView style={styles.mainContainer}  >
-            <StatusBar barStyle="light-content" backgroundColor={COLORS.primary_color} />
-            <ScrollView nestedScrollEnabled={false} style={styles.scrollCon} showsVerticalScrollIndicator={false}>
-                {/* Head */}
-                <View style={styles.head}>
-                    <Header title="All Futsals" />
-                    <Devider height={20} />
-                    <SearchingBtn />
-                </View>
+        <View style={styles.mainContainer}  >
+            {
+                Platform.OS == 'android' ?
+                    <SafeAreaViewAndroidView />
+                    : <SafeAreaView />
+            }
+            <StatusBar barStyle="dark-content" />
+            <SearchHeader onSearch={onSearch} onFilter={onFilter} />
+            <ScrollView nestedScrollEnabled={false} style={styles.scrollCon} contentContainerStyle={{ rowGap: 15 }} showsVerticalScrollIndicator={false}>
                 {/* Body */}
                 <View style={styles.body}>
-                    <Devider />
-                    <FlatList
-                        scrollEnabled={false}
-                        data={nearByFutsalsData}
-                        keyExtractor={(item, index) => item.id}
-                        contentContainerStyle={styles.flatListCon}
-                        renderItem={({ item }) => <FutsalCards {...item} />}
-                        ListHeaderComponent={() => <ListHeader title="All Futsals" textButton={nearByFutsalsData.length} />}
-                    />
+                    {/* <Devider /> */}
+                    {
+                        !loading ?
+                            <FlatList
+                                scrollEnabled={false}
+                                data={venues}
+                                keyExtractor={(item, index) => item.id}
+                                contentContainerStyle={styles.flatListCon}
+                                renderItem={({ item }) => <FutsalCards {...item} data={item} />}
+                                // ListHeaderComponent={() => <ListHeader title="All Futsals" numOfVenues={venues?.length} textButton={nearByFutsalsData.length} />}
+                                ListEmptyComponent={() => (
+                                    <View style={{ justifyContent: "center", alignItems: "center", rowGap: 10 }}>
+                                        <Image source={notFoundFutsalImage} style={{ width: 60, height: 60, resizeMode: "cover" }} />
+                                        <Text style={[SIZES2.text_sm, { opacity: .7 }]}>Not Venue Found</Text>
+                                    </View>
+                                )}
+                            />
+                            : <ActivityIndicator size={'small'} color={COLORS.primary_color} />
+                    }
                     <Devider />
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     )
 }
 //
@@ -47,7 +90,7 @@ export default FutsalsScreen;
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: COLORS.primary_color,
+        backgroundColor: COLORS.bg_primary,
         // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : StatusBar.currentHeight
     },
     scrollCon: {
@@ -55,9 +98,9 @@ const styles = StyleSheet.create({
     },
     head: {
         width: '100%',
-        paddingBottom: '5%',
+        // paddingBottom: '5%',
         zIndex: 0,
-        padding: appLayout.padding,
+        paddingHorizontal: LAY_OUT.padding,
     },
     body: {
         flex: 1,
@@ -65,11 +108,11 @@ const styles = StyleSheet.create({
         paddingBottom: '7%',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        backgroundColor: COLORS.bg_tertiary
+        backgroundColor: COLORS.bg_primary
     },
     flatListCon: {
-        rowGap: 20,
-        paddingHorizontal: appLayout.paddingX
+        rowGap: 5,
+        paddingHorizontal: LAY_OUT.padding
     },
     nearByFutsalsCardCon: {
         columnGap: 10,
@@ -78,6 +121,9 @@ const styles = StyleSheet.create({
     allFutsalsCon: {
         rowGap: 20,
         paddingHorizontal: appLayout.paddingX
+    },
+    searchWrapper: {
+        // paddingHorizontal: LAY_OUT.paddingX
     }
 })
 //

@@ -12,6 +12,11 @@ import HomeStack from '../../screens/Home';
 import FutsalsStack from '../../screens/Futsals';
 import BookedFutsalsStack from '../../screens/BookedFutsals';
 import AccountStack from '../../screens/Account';
+import { Platform } from 'react-native';
+import MainProvider from '../../screens/provider/login';
+import ProviderLogin from '../../screens/provider/login';
+import ProviderStack from '../../screens/provider';
+import { AntDesign } from '@expo/vector-icons';
 //
 const Tab = createBottomTabNavigator();
 //
@@ -27,7 +32,7 @@ const BottomTabNavigations = () => {
                     borderTopColor: 'rgba(0, 0, 0, .2)',
                     paddingTop: Platform.OS === 'android' ? 15 : 10,
                     paddingBottom: Platform.OS === 'android' ? 15 : 30,
-                    height: Platform.OS === 'android' ? 70 : 90,
+                    height: Platform.OS === 'android' ? 80 : 90,
                     // backgroundColor: 'blue'
                 },
             }}
@@ -42,9 +47,17 @@ const BottomTabNavigations = () => {
             />
             <Tab.Screen name="FutsalsStack" component={FutsalsStack}
                 options={{
-                    tabBarLabel: 'Futsals',
+                    tabBarLabel: 'Venues',
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons name="stadium-variant" color={color} size={size} />
+                    ),
+                }}
+            />
+            <Tab.Screen name="ProviderStack" component={ProviderStack}
+                options={{
+                    tabBarLabel: 'Provider',
+                    tabBarIcon: ({ color, size }) => (
+                        <AntDesign name="plussquare" color={color} size={20} />
                     ),
                 }}
             />

@@ -26,7 +26,7 @@ const ListEmptyComponent = ({ title = "Opps!", message = 'message' }) => {
                 {message}
             </Text>
             <Devider height={30} />
-            <CustomButton title="Find Futsal" style={styles.button} />
+            {/* <CustomButton title="Find Futsal" style={styles.button} /> */}
         </View>
     )
 }

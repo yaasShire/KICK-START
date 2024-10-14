@@ -4,8 +4,9 @@ import { Image, Platform, StyleSheet, View } from 'react-native';
 import { Carousel } from 'react-native-ui-lib/src/components/carousel';
 import { COLORS } from '../../../../theme/globalStyle';
 //
-const ImageCarousel = () => {
-    const images = [
+const ImageCarousel = ({ images = [] }) => {
+    console.log(images);
+    const imagess = [
         require('../../../../../assets/images/Futsals/futsal1.jpeg'),
         require('../../../../../assets/images/Futsals/futsal2.jpeg'),
         require('../../../../../assets/images/Futsals/futsal3.jpeg'),
@@ -16,15 +17,15 @@ const ImageCarousel = () => {
             loop
             pageControlPosition="over"
             onChangePage={() => console.log('page changed')}
-            showCounter={Platform.OS == "android" ? true : false}
-            pageControlProps={{ color: COLORS.tertiary_color, enlargeActive: true, }}
+            showCounter={Platform.OS == "android" ? false : false}
+            pageControlProps={{ color: COLORS.primary_color, enlargeActive: true }}
         >
             {
                 images.map((item, index) => (
                     <View key={index} style={styles.imagesCon}>
                         <Image
                             resizeMode="cover"
-                            source={images[index]}
+                            source={{ uri: item }}
                             style={{ width: '100%', height: '100%' }}
                         />
                     </View>
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     imagesCon: {
         height: 300,
         width: '100%',
-        backgroundColor: 'blue'
+        backgroundColor: COLORS.bg_secondary
     }
 })
 //

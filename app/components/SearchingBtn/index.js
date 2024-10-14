@@ -1,54 +1,51 @@
-//
-import React from 'react';
-import { COLORS } from '../../theme/globalStyle';
-import { useNavigation } from '@react-navigation/core';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-//
-const SearchingBtn = () => {
-    const { navigate } = useNavigation();
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import React from 'react'
+import { StatusBar } from 'expo-status-bar'
+import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
+import { LAY_OUT, SIZES2 } from '../../theme/globalStyle'
+
+const SearchHeader = ({ onRegisterProductBtn = () => { }, onSearch = () => { }, onFilter = () => { } }) => {
     return (
         <View style={styles.container}>
-            <Pressable onPress={() => navigate('Searching')} style={styles.searchFeild}>
-                <AntDesign name="search1" size={23} color={COLORS.primary_color} />
-                <Text style={styles.text}>
-                    Search Futsal
-                </Text>
-            </Pressable>
-            <Pressable onPress={() => navigate('Filtering')} style={styles.filterBtn}>
-                <AntDesign name="filter" size={25} color={COLORS.primary_color} />
-            </Pressable>
+            <StatusBar backgroundColor='#000' />
+            <View style={styles.subWrapper}>
+                <View style={styles.titleWrapper}>
+                    <Text style={[SIZES2.text_base]}>Venues</Text>
+                </View>
+                <View style={styles.leftContentWrapper}>
+                    {/* <TouchableOpacity onPress={onFilter}>
+                        <Ionicons name='filter-circle' size={26} color={"#000"} />
+                    </TouchableOpacity> */}
+                    <TouchableOpacity onPress={onSearch}>
+                        <Ionicons name='search-sharp' size={23} color={"#000"} />
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     )
 }
-//
-export default SearchingBtn;
-//
+
+export default SearchHeader
+
 const styles = StyleSheet.create({
     container: {
-        columnGap: 15,
-        overflow: 'hidden',
-        flexDirection: 'row',
-        alignItems: 'center',
+        backgroundColor: "#fff",
     },
-    searchFeild: {
+    subWrapper: {
+        paddingVertical: 15,
+        padding: LAY_OUT.paddingX,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+    titleWrapper: {
         flex: 1,
-        columnGap: 7,
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: '3.5%',
-        borderRadius: 5,
-        backgroundColor: COLORS.bg_tertiary
+        justifyContent: "center",
+        alignItems: "flex-start"
     },
-    filterBtn: {
-        padding: '3%',
-        borderRadius: 5,
-        backgroundColor: COLORS.bg_primary
-    },
-    text: {
-        fontSize: 15,
-        fontWeight: "400",
-        color: COLORS.black800
+    leftContentWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
+        columnGap: 20
     }
 })
-//

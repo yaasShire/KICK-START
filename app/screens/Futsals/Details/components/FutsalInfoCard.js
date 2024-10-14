@@ -1,13 +1,13 @@
 //
 import React from 'react';
 import Devider from '../../../../components/Devider';
-import { COLORS } from '../../../../theme/globalStyle';
+import { COLORS, SIZES, SIZES2 } from '../../../../theme/globalStyle';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import futsalLogo from '../../../../../assets/images/Futsals/futsalLogo3.png';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 //
-const FutsalInfoCard = ({ id, futsalName, distance, address, campacity, price, imageUrl }) => {
+const FutsalInfoCard = ({ distance = 0, data = {} }) => {
     return (
         <View style={styles.mainContainer}>
             <View style={styles.container}>
@@ -21,38 +21,36 @@ const FutsalInfoCard = ({ id, futsalName, distance, address, campacity, price, i
                 <View style={styles.contentCon}>
                     {/* futsal name and hear icon container */}
                     <View style={[styles.rowCon, { justifyContent: "space-between" }]}>
-                        <Text style={styles.futsalNameTxt}>
-                            {futsalName}
+                        <Text style={[SIZES2.text_md]}>
+                            {data?.name}
                         </Text>
-                        <Pressable>
+                        {/* <Pressable>
                             <AntDesign name="hearto" size={20} color={COLORS.primary_color} />
-                        </Pressable>
+                        </Pressable> */}
                     </View>
                     {/* distance and address and distance between icon container */}
                     <View style={[styles.rowCon, { columnGap: 3, justifyContent: 'flex-start' }]}>
                         <MaterialCommunityIcons name="map-marker-distance" size={12} />
-                        <Text style={styles.paragraphTxt}>
-                            {distance} | {address}
+                        <Text style={[SIZES2.text_sm]}>
+                            {distance.toFixed(2)}km | {data?.address}
                         </Text>
                     </View>
                     {/* campacity and price per hour container */}
                     <View style={[styles.rowCon]}>
                         <Text style={styles.priceText}>
-                            {price} per hour
+                            {data?.numberOfHoursOpen} Hours Open
                         </Text>
                         <View style={styles.campacityCon}>
                             <Text style={styles.campacityText}>
-                                {campacity}
+                                {data?.numberOfCourts} Courts
                             </Text>
                         </View>
                     </View>
                 </View>
             </View>
             <Devider height={12} />
-            <Text style={styles.futsalDes}>
-                Located at Sankhamul Chowk, Handrik Futsal is one of the largest and
-                most beautiful Futsals in Mogadishu. Easily accessible and just
-                amazing surice just for you.
+            <Text style={[SIZES2.text_sm]}>
+                {data?.description}
             </Text>
         </View>
     )
@@ -112,8 +110,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.bg_primary,
     },
     priceText: {
-        fontSize: 15,
-        fontWeight: 'bold',
+        ...SIZES2.text_sm,
         textTransform: 'uppercase',
         color: COLORS.primary_color
     },
@@ -124,10 +121,9 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.black600,
     },
     campacityText: {
-        fontSize: 12,
-        fontWeight: '800',
         letterSpacing: 0.5,
         color: COLORS.black800,
+        ...SIZES2.text_sm,
         textTransform: 'uppercase'
     },
     futsalDes: {

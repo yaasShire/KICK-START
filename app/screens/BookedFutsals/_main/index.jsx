@@ -1,35 +1,52 @@
 //
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { bookedFutsalsData } from '../../../data';
-import { appLayout, COLORS } from '../../../theme/globalStyle';
+import { appLayout, COLORS, LAY_OUT, SIZES2 } from '../../../theme/globalStyle';
 import { BookedFutsalCards, Devider, Header, ListHeader } from '../../../components';
-import { FlatList, SafeAreaView, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, ScrollView, SectionList, StyleSheet, Text, View, Platform } from 'react-native';
+import { authorizedGet } from '../../../api/authorizedGet';
+
+import { useFocusEffect } from '@react-navigation/native';
+import GorhomBottomSheet from '../../../components/GorhomBottomSheet';
+import noBookingVenueFound from '../../../../assets/images/Futsals/venue_not_found.png'
+import IosAndroidSafeArea from '../../../components/iosAndroidSafeArea';
+import OrdersTopTabsForCustomer from '../orderTopTabsForCustomer';
 //
 const BookedFutsalsScreen = () => {
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const [bookedVenues, setBookedVenues] = useState([])
+    const [oneTimeBookings, setOneTimeBookings] = useState([])
+    const [recurringBookings, setRecurringBookings] = useState([])
+
+    // const getBookedFutsals = async () => {
+    //     try {
+    //         const { result } = await authorizedGet("booking/getBookingByCustomerId", setError, setLoading)
+    //         console.log("resultt-->", result[1]);
+
+    //         setOneTimeBookings(result[1])
+    //         setRecurringBookings(result[3])
+    //         setBookedVenues(result)
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         getBookedFutsals()
+    //     }, [])
+    // )
+
+    //
     return (
-        <SafeAreaView style={styles.mainContainer}>
-            <ScrollView nestedScrollEnabled={false} style={styles.scrollCon} showsVerticalScrollIndicator={false}>
-                {/* Head */}
-                <View style={styles.head}>
-                    <Header title="Booked Futsals" />
-                    <Devider height={20} />
-                    <Text>Explore</Text>
-                    {/* <SearchingBtn /> */}
-                </View>
-                {/* Body */}
-                <View style={styles.body}>
-                    <Devider height={25} />
-                    <FlatList
-                        scrollEnabled={false}
-                        data={bookedFutsalsData}
-                        keyExtractor={(item, index) => item.id}
-                        contentContainerStyle={styles.flatListCon}
-                        renderItem={({ item }) => <BookedFutsalCards {...item} />}
-                        ListHeaderComponent={() => <ListHeader title="Booked Futsals" />}
-                    />
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+        <View style={styles.mainContainer}>
+            <IosAndroidSafeArea />
+            <View style={styles.head}>
+                <Header title="Booked Futsals" />
+            </View>
+            <OrdersTopTabsForCustomer />
+        </View>
     )
 }
 //
@@ -38,15 +55,14 @@ export default BookedFutsalsScreen;
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: COLORS.primary_color,
-        // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : StatusBar.currentHeight
+        backgroundColor: COLORS.bg_primary,
     },
     head: {
         width: '100%',
         paddingBottom: '5%',
         zIndex: 0,
         padding: appLayout.padding,
-        backgroundColor: COLORS.primary_color
+        backgroundColor: COLORS.bg_primary
     },
     body: {
         flex: 1,
@@ -54,11 +70,16 @@ const styles = StyleSheet.create({
         paddingBottom: '7%',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        backgroundColor: COLORS.bg_tertiary
+        backgroundColor: COLORS.bg_primary
     },
     flatListCon: {
         rowGap: 20,
-        paddingHorizontal: appLayout.paddingX
+        paddingHorizontal: LAY_OUT.padding
+    },
+    emptyStateWrapper: {
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%"
     }
 })
 //

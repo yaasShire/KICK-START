@@ -1,148 +1,119 @@
-//
-import React from 'react';
-import Devider from '../Devider';
-import CustomBtn from '../CustomBtn';
-import { COLORS } from '../../theme/globalStyle';
-import { useNavigation } from '@react-navigation/core';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-//
-const FutsalCards = ({ id, futsalName, distance, address, campacity, price, imageUrl }) => {
-    const { navigate } = useNavigation();
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native'
+import React, { useState } from 'react'
+import { COLORS, LAY_OUT, SIZES2 } from '../../theme/globalStyle'
+import { EvilIcons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
+import { calculateDistance } from '../../utilities'
+
+const FutsalCards = ({ data = {}, location = {} }) => {
+    const { navigate } = useNavigation()
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const [isFavorited, setIsFavorited] = useState(false)
+    const [loading2, setLoading2] = useState(false)
+    const [error2, setError2] = useState(false)
+    let distance = 0
+    if (location?.latitude && location?.longitude) {
+        distance = calculateDistance(location.latitude, location?.longitude, Number(data?.latitude), Number(data?.longitude));
+    }
+    //
     const onBookNow = () => {
         navigate('FutsalsStack', {
             screen: 'Details',
             initial: false,
             params: {
-                id, futsalName, distance, address, campacity, price, imageUrl
+                id: data?.id, futsalName: data?.name, distance, address: data?.address, numberOfCourts: data?.numberOfCourts, numberOfHoursOpen: data?.numberOfHoursOpen, imageUrl: "",
+                description: data?.description, openTime: data?.openTime, closeTime: data?.closeTime
             }
         })
     }
+    const addOrRemoveVenueFromUserFavorites = async () => {
+        try {
+            const { result } = await authorizedUpdate(`profile/addOrRemoveFavoriteVenueToUser/${data?.id}`, setError2, setLoading2)
+            if (result?.message == "Venue Added To Favorite") {
+                setIsFavorited(true)
+                getPopularVenues()
+            }
+            if (result?.message == "Venue Removed From Favorite") {
+                setIsFavorited(false)
+                getPopularVenues()
+            }
+            console.log(result);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    console.log(data?.numberOfCourts);
     return (
-        <View style={styles.mainContainer}>
-            <View style={styles.container}>
-                <View style={styles.imageCon}>
-                    <Image
-                        source={imageUrl}
-                        resizeMode="cover"
-                        style={{ width: '100%', height: 90, borderRadius: 7 }}
-                    />
+        <Pressable style={styles.container} onPress={onBookNow}>
+            <View style={styles.imgWrapper}>
+                <Image source={{ uri: data?.images[0] }} style={styles.image} />
+            </View>
+            <View style={styles.content}>
+                <Text numberOfLines={1} style={[SIZES2.text_base]}>{data?.name}</Text>
+                <View style={styles.addressWrapper}>
+                    <EvilIcons name='location' />
+                    <Text numberOfLines={1} style={[SIZES2.text_sm]}>{data?.address}/{data?.city}</Text>
                 </View>
-                <View style={styles.contentCon}>
-                    {/* futsal name and hear icon container */}
-                    <View style={styles.rowCon}>
-                        <Text style={styles.headingTxt}>
-                            {futsalName}
-                        </Text>
-                        <Pressable>
-                            <AntDesign name="hearto" size={20} color={COLORS.primary_color} />
-                        </Pressable>
-                    </View>
-                    {/* distance and address and distance between icon container */}
-                    <View style={[styles.rowCon, { columnGap: 3, justifyContent: 'flex-start' }]}>
-                        <MaterialCommunityIcons name="map-marker-distance" size={12} />
-                        <Text style={styles.paragraphTxt}>
-                            {distance} | {address}
-                        </Text>
-                    </View>
-                    {/* campacity and price per hour container */}
-                    <View style={[styles.rowCon]}>
-                        <Text style={styles.priceText}>
-                            {price} per hour
-                        </Text>
-                        <View style={styles.campacityCon}>
-                            <Text style={styles.campacityText}>
-                                {campacity}
-                            </Text>
-                        </View>
-                    </View>
+                {/* <View style={styles.wrapper}>
+                    <FontAwesome name='star' size={15} color={"#f7b502"} />
+                    <Text numberOfLines={1} style={[SIZES2.text_sm]}>4.8</Text>
+                </View> */}
+                <View style={styles.wrapper}>
+                    <MaterialCommunityIcons name='map-marker-distance' size={18} color={COLORS.linkColor} />
+                    <Text numberOfLines={1} style={[SIZES2.text_sm]}>{distance.toFixed(2)}km away</Text>
+                </View>
+                <View style={styles.wrapper}>
+                    <MaterialCommunityIcons name='soccer-field' size={18} color={COLORS.gray_font_color} />
+                    <Text numberOfLines={1} style={[SIZES2.text_sm]}>{data?.numberOfCourts} Court{data?.numberOfCourts > 0 ? 's' : ''}</Text>
+                </View>
+                <View style={styles.wrapper}>
+                    {/* <MaterialCommunityIcons name='soccer-field' size={15} color={COLORS.linkColor} /> */}
+                    <Text numberOfLines={1} style={[SIZES2.text_sm, { fontFamily: "poppins300", color: "rgba(0, 0, 0, .6)" }]}>{data?.description}</Text>
                 </View>
             </View>
-            <Devider />
-            <CustomBtn
-                title="Book Now"
-                onClickHandler={onBookNow}
-                style={styles.bookingBtn} color={COLORS.primary_color}
-            />
-        </View>
+        </Pressable>
     )
 }
-//
-export default FutsalCards;
-//
+
+export default FutsalCards
+
 const styles = StyleSheet.create({
-    mainContainer: {
-        width: '100%',
-        padding: '4%',
-        borderRadius: 7,
-        shadowColor: COLORS.black800,
-        shadowOffset: {
-            width: 2,
-            height: 2,
-        },
-        shadowOpacity: 0.17,
-        shadowRadius: 3.05,
-        elevation: 3,
-        backgroundColor: COLORS.bg_primary,
-    },
     container: {
-        flexDirection: 'row',
-        columnGap: 10,
-    },
-    imageCon: {
-        flex: 0.5,
-        borderRadius: 7,
-        backgroundColor: COLORS.light_green_color
-    },
-    contentCon: {
-        flex: 1,
-        rowGap: 10,
-        height: 90,
-        paddingVertical: '1%',
-        justifyContent: 'space-between',
-        // backgroundColor: COLORS.tertiary_color
-    },
-    rowCon: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    headingTxt: {
-        fontSize: 16,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        color: COLORS.black900
-    },
-    paragraphTxt: {
-        fontSize: 12,
-        fontWeight: '500',
-        letterSpacing: 0.5,
-        color: COLORS.black800
-    },
-    bookingBtn: {
-        borderWidth: 1,
-        borderColor: COLORS.primary_color,
         backgroundColor: COLORS.bg_primary,
+        // borderWidth: 1,
+        borderColor: COLORS.bg_secondary,
+        padding: 5,
+        height: 135,
+        borderRadius: 8,
+        flexDirection: "row",
+        columnGap: 5,
+        alignItems: "center",
     },
-    priceText: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        color: COLORS.primary_color
+    content: {
+        flex: 1,
+        alignItems: "flex-start",
+        rowGap: 10
     },
-    campacityCon: {
-        borderRadius: 50,
-        paddingVertical: "1.5%",
-        paddingHorizontal: '4%',
-        backgroundColor: COLORS.black600
+    image: {
+        width: "50",
+        height: "100%",
+        borderRadius: 8,
+        resizeMode: "cover"
     },
-    campacityText: {
-        fontSize: 12,
-        fontWeight: '800',
-        letterSpacing: 0.5,
-        color: COLORS.black800,
-        textTransform: 'uppercase'
+    imgWrapper: {
+        width: "45%",
+    },
+    addressWrapper: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        columnGap: 3
+    },
+    wrapper: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        columnGap: 3
     },
 })
-//

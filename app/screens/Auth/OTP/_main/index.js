@@ -1,19 +1,116 @@
 //
 import { Formik } from 'formik';
-import React, { useState } from 'react';
-import { COLORS, appLayout } from '../../../../theme/globalStyle';
+import React, { useEffect, useRef, useState } from 'react';
+import { COLORS, SIZES2, appLayout } from '../../../../theme/globalStyle';
 import { AuthHeader, CustomBtn, CustomInput, Devider } from '../../../../components';
-import { Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
+import authorizedPostAuthentication from '../../../../api/authorizedPost';
+import { Button, Snackbar } from 'react-native-paper';
+import { post } from '../../../../api/post';
 //
 const OTPscreen = ({ navigation, route }) => {
-    const { phoneNumber } = route.params;
+    // const { phoneNumber } = route.params;
     const [resError, setResError] = useState(false);
-    const OTP_Values = { box1: '', box2: '', box3: '', box4: '' }
+    const OTP_Values = { box0: "", box1: '', box2: '', box3: '', box4: '', box5: "" }
+    const [resendLoading, setResendLoading] = useState(false)
+    const [remainingTime, setRemainingTime] = useState(180); // Set initial time to 2 minutes (120 seconds)
+    const [minutes, setMinutes] = useState(3);
+    const [seconds, setSeconds] = useState(0);
+    const [showResendButton, setShowResendButton] = useState(false)
+    const otpInputs = useRef([]);
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const [data, setData] = useState({})
+    const [visible, setVisible] = useState(false);
+
+    const onToggleSnackBar = () => setVisible(!visible);
+
+    const onDismissSnackBar = () => setVisible(false);
     //
-    const onConfirmOTP = (values) => {
-        setResError(!resError)
-        navigation.navigate('CreatePassword')
-        // console.log('values', values);
+
+    const handleFocus = () => {
+        otpInputs?.current[0]?.focus();
+    };
+    const handleInputChange = async (index, value) => {
+        // Update the input value in the state
+        const newOtpInputs = [...otpInputs.current];
+        newOtpInputs[index].value = value;
+
+        // If the input is cleared, move focus to the previous input
+
+        if (!value && index > 0) {
+            newOtpInputs[index - 1].focus();
+        } else if (index < otpInputs.current.length - 1) {
+            // If not the last digit and not clearing, move focus to the next input
+            newOtpInputs[index + 1].focus();
+        }
+        if (index === otpInputs.current.length - 1 && value) {
+            const otpValue = newOtpInputs.map((input) => input.value).join('');
+            // console.log('OTP Value:', otpValue);
+            onConfirmOTP()
+            // You can now use otpValue as needed, for example, for OTP verification or form submission
+        }
+
+        // Update the refs with the modified inputs
+        otpInputs.current = newOtpInputs;
+    };
+    const getOtpValue = () => {
+        return otpInputs.current.map((input) => input.value).join('');
+    };
+
+    useEffect(() => {
+        handleFocus()
+    }, [])
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (seconds > 0) {
+                setSeconds(seconds - 1);
+            } else {
+                if (minutes > 0) {
+                    setMinutes(minutes - 1);
+                    setSeconds(59);
+                } else {
+                    clearInterval(interval);
+                    // Handle OTP verification timeout
+                    setShowResendButton(true)
+                }
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [minutes, seconds]);
+
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    const resendOTP = async () => {
+        // setResendLoading(true)
+        // const { result } = await postData("resendRegistrationCode", setError, setResendLoading)
+        // console.log('====================================');
+        // console.log("resend code result-->", result);
+        // console.log('====================================');
+        // if (result?.OTP) {
+        //     setMinutes(3)
+        //     setSeconds(0)
+        //     setRemainingTime(180)
+        //     setShowResendButton(false)
+        // }
+    }
+
+    const onConfirmOTP = async (values) => {
+        setLoading(true)
+        const otpValue = getOtpValue();
+        const otpAuthenticate = {
+            otp: otpValue
+        }
+        console.log(otpValue);
+        const { result } = await post("authenticate/verifyOTP", setError, setLoading, JSON.stringify(otpAuthenticate))
+        console.log('====================================');
+        console.log("re-->", result);
+        console.log('====================================');
+        if (result?.message == "User is created successfully") {
+            navigation.navigate('LoginStack')
+        }
     }
     //
     return (
@@ -35,59 +132,137 @@ const OTPscreen = ({ navigation, route }) => {
                         {({ handleChange, handleBlur, handleSubmit, values, errors }) => {
                             return (
                                 <View style={styles.formCon}>
-                                    <Text style={styles.OTPtitle}>
+                                    <Text style={[SIZES2.text_lg]}>
                                         ENTER OTP
                                     </Text>
                                     <Devider height={10} />
                                     <Text style={styles.OTPdesc}>
-                                        Enter the One-Time Pin sent to this ({phoneNumber}) phone number
+                                        {/* Enter the One-Time Pin sent to this ({phoneNumber}) phone number */}
                                     </Text>
                                     <Devider />
                                     <View style={styles.OTP_Container}>
-                                        <CustomInput
+                                        <TextInput
+                                            ref={(input) => (otpInputs.current[0] = input)}
+                                            maxLength={1}
+                                            error={resError}
+                                            value={values.box0}
+                                            keyboardType="number-pad"
+                                            style={styles.OTP_Input}
+                                            // onChangeText={handleChange("box1")}
+                                            onChangeText={(value) => {
+                                                handleChange('box0')(value)
+                                                handleInputChange(0, value)
+                                            }}
+                                        />
+                                        <TextInput
+                                            ref={(input) => (otpInputs.current[1] = input)}
                                             maxLength={1}
                                             error={resError}
                                             value={values.box1}
-                                            keyboardType="number-pad"
+                                            keyboardType="numeric"
                                             style={styles.OTP_Input}
-                                            onChangeText={handleChange("box1")}
+                                            // onChangeText={handleChange("box2")}
+                                            onChangeText={(value) => {
+                                                handleChange('box1')(value)
+                                                handleInputChange(1, value)
+                                            }}
                                         />
-                                        <CustomInput
+                                        <TextInput
+                                            ref={(input) => (otpInputs.current[2] = input)}
                                             maxLength={1}
                                             error={resError}
                                             value={values.box2}
                                             keyboardType="numeric"
                                             style={styles.OTP_Input}
-                                            onChangeText={handleChange("box2")}
+                                            // onChangeText={handleChange("box3")}
+                                            onChangeText={(value) => {
+                                                handleChange('box2')(value)
+                                                handleInputChange(2, value)
+                                            }}
                                         />
-                                        <CustomInput
+                                        <TextInput
+                                            ref={(input) => (otpInputs.current[3] = input)}
                                             maxLength={1}
                                             error={resError}
                                             value={values.box3}
                                             keyboardType="numeric"
                                             style={styles.OTP_Input}
-                                            onChangeText={handleChange("box3")}
+                                            // onChangeText={handleChange("box4")}
+                                            onChangeText={(value) => {
+                                                handleChange('box3')(value)
+                                                handleInputChange(3, value)
+                                            }}
                                         />
-                                        <CustomInput
+                                        <TextInput
+                                            ref={(input) => (otpInputs.current[4] = input)}
                                             maxLength={1}
                                             error={resError}
                                             value={values.box4}
                                             keyboardType="numeric"
                                             style={styles.OTP_Input}
-                                            onChangeText={handleChange("box4")}
+                                            // onChangeText={handleChange("box4")}
+                                            onChangeText={(value) => {
+                                                handleChange('box4')(value)
+                                                handleInputChange(4, value)
+                                            }}
+                                        />
+                                        <TextInput
+                                            ref={(input) => (otpInputs.current[5] = input)}
+                                            maxLength={1}
+                                            error={resError}
+                                            value={values.box5}
+                                            keyboardType="numeric"
+                                            style={styles.OTP_Input}
+                                            // onChangeText={handleChange("box4")}
+                                            onChangeText={(value) => {
+                                                handleChange('box5')(value)
+                                                handleInputChange(5, value)
+                                            }}
                                         />
                                     </View>
-                                    <CustomBtn onClickHandler={handleSubmit} title="Next" />
+                                    <CustomBtn loading={loading} onClickHandler={handleSubmit} title="Next" />
+
+                                    <View style={{ flexDirection: "row", columnGap: 6, marginTop: 5 }}>
+                                        {
+                                            (minutes > 0 || seconds > 0) &&
+                                            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", width: "100%" }}>
+                                                <Text style={{ fontFamily: "Poppins-Medium.ttf", color: "" }}>Remaining :</Text>
+                                                <Text style={{ fontFamily: "Poppins-Bold.ttf", color: "" }}>{formattedTime}</Text>
+                                            </View>
+                                        }
+                                        {
+                                            showResendButton &&
+                                            <Pressable onPress={resendOTP}>
+                                                {
+                                                    resendLoading ?
+                                                        <ActivityIndicator size={40} />
+                                                        :
+                                                        <Text style={{ color: "red", fontFamily: "Poppins-Medium.ttf" }}>Resend OTP?</Text>
+                                                }
+                                            </Pressable>
+                                        }
+                                    </View>
                                 </View>
                             )
                         }}
                     </Formik>
                     <Devider height={20} />
                     <Text onPress={() => navigation.pop()} style={styles.backHomeTxt}>
-                        Back to Login
+                        Back to Sign Up
                     </Text>
                 </ScrollView>
             </KeyboardAvoidingView>
+            <Snackbar
+                visible={visible}
+                onDismiss={onDismissSnackBar}
+                action={{
+                    label: 'Verification Failed',
+                    onPress: () => {
+                        // Do something
+                    },
+                }}>
+                {error?.message}
+            </Snackbar>
         </SafeAreaView>
     )
 }
@@ -134,10 +309,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     OTP_Input: {
-        width: '20%',
+        width: '12%',
+        height: 40,
+        borderRadius: 4,
         marginBottom: '5%',
         textAlign: 'center',
         backgroundColor: COLORS.bg_primary,
+        borderWidth: 1,
+        borderColor: COLORS.primary_color
     }
 })
 //
